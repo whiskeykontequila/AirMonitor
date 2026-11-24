@@ -17,6 +17,8 @@ struct PopoverView: View {
             MetricsGrid(store: store)
             NoticesView(store: store, openSettings: openSettings)
             Divider()
+            HistorySection(store: store, history: store.history)
+            Divider()
             FooterView(store: store, openSettings: openSettings)
         }
         .padding(14)

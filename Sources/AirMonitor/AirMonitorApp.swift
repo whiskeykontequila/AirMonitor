@@ -72,6 +72,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
+    func applicationWillTerminate(_ notification: Notification) {
+        store?.history.saveNow()
+    }
+
     // MARK: Clicking the menu bar icon
 
     @objc private func statusItemClicked(_ sender: NSStatusBarButton) {
@@ -90,6 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             activateApp()
             popover.contentViewController?.view.window?.makeKey()
             store.refreshIfOlder(than: 60)
+            store.history.requestArchive()
         }
     }
 

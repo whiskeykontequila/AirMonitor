@@ -61,6 +61,10 @@ enum AirQuality {
     // MARK: US AQI (EPA, PM2.5 breakpoints from May 2024)
 
     static let usNames = ["Good", "Moderate", "Unhealthy for sensitive groups", "Unhealthy", "Very unhealthy", "Hazardous"]
+    /// Upper concentration of each US category (µg/m³), used for the history chart bands.
+    static let usPM25Limits: [Double] = [9.0, 35.4, 55.4, 125.4, 225.4]
+    static let usPM10Limits: [Double] = [54, 154, 254, 354, 424]
+
     static let usColors: [NSColor] = [
         hex(0x00E400), hex(0xFFFF00), hex(0xFF7E00), hex(0xFF0000), hex(0x8F3F97), hex(0x7E0023),
     ]

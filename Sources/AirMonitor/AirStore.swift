@@ -15,6 +15,9 @@ final class AirStore: ObservableObject {
     @Published private(set) var sensorLocations: [Int: GeoPoint] = [:]
     @Published private(set) var sensorTypes: [Int: String] = [:]
 
+    /// Cached history (archive + the app's own readings).
+    let history: HistoryStore
+
     @Published var launchError: String? = nil
     @Published var launchAtLogin = false {
         didSet { if launchAtLogin != oldValue && !syncingLoginItem { updateLoginItem() } }
@@ -51,6 +54,7 @@ final class AirStore: ObservableObject {
     }
 
     init() {
+        history = HistoryStore()
         let d = UserDefaults.standard
         sensorIDsText = d.string(forKey: Keys.sensorIDs) ?? ""   // no default sensor – picked on first launch
         localHost = d.string(forKey: Keys.localHost) ?? ""
@@ -60,6 +64,7 @@ final class AirStore: ObservableObject {
         let savedMinutes = d.integer(forKey: Keys.refreshMinutes)
         refreshMinutes = savedMinutes > 0 ? savedMinutes : 5
         launchAtLogin = SMAppService.mainApp.status == .enabled
+        history.sourcesProvider = { [weak self] in self?.historySources ?? [] }
     }
 
     // MARK: Startup and timer
@@ -119,6 +124,17 @@ final class AirStore: ObservableObject {
     /// Nothing configured yet (first launch).
     var hasNoSources: Bool {
         sensorIDs.isEmpty && localHost.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// Sources whose history is shown: every selected sensor (with its archive file type) and the local device.
+    var historySources: [HistorySource] {
+        var result = sensorIDs.map {
+            HistorySource(key: "sc-\($0)", sensorID: $0, archiveType: sensorTypes[$0]?.lowercased())
+        }
+        if !localHost.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            result.append(HistorySource(key: "local", sensorID: nil, archiveType: nil))
+        }
+        return result
     }
 
     func label(for id: Int) -> String {
@@ -181,6 +197,12 @@ final class AirStore: ObservableObject {
         sensorLocations = locations
         sensorTypes = types
         sources = results.map { $0.status }
+
+        // History: keep the app's own readings and fetch any missing archive days.
+        for r in results where r.status.ok {
+            history.recordLive(sourceKey: r.status.id, values: r.values)
+        }
+        history.requestArchive()
     }
 
     // MARK: Derived values for display

@@ -219,7 +219,7 @@ struct SettingsView: View {
         TabView {
             SensorsTab(store: store, map: map)
                 .tabItem { Label("Sensors", systemImage: "map") }
-            GeneralTab(store: store)
+            GeneralTab(store: store, history: store.history)
                 .tabItem { Label("General", systemImage: "gearshape") }
         }
         .padding(12)
@@ -428,6 +428,7 @@ struct LocationDetail: View {
 @MainActor
 struct GeneralTab: View {
     @ObservedObject var store: AirStore
+    @ObservedObject var history: HistoryStore
 
     var body: some View {
         Form {
@@ -457,6 +458,21 @@ struct GeneralTab: View {
                 if let e = store.launchError {
                     Text(verbatim: e).font(.caption).foregroundStyle(.red)
                 }
+            }
+
+            Section("History") {
+                LabeledContent("Stored on this Mac") {
+                    Text(verbatim: ByteCountFormatter.string(fromByteCount: history.cacheSize, countStyle: .file))
+                }
+                Text(verbatim: "Past days are downloaded once from archive.sensor.community and kept for 400 days. AirMonitor also records its own readings, including your local device.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button("Clear History…") { history.showClearConfirm = true }
+                    .confirmationDialog("Clear all stored history?", isPresented: $history.showClearConfirm) {
+                        Button("Clear History", role: .destructive) { history.clearAll() }
+                    } message: {
+                        Text(verbatim: "Archive days can be downloaded again, but readings recorded from your local device can't be restored.")
+                    }
             }
 
             Section("Sources") {
