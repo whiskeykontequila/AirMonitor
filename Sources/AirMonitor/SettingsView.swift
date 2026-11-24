@@ -464,7 +464,7 @@ struct GeneralTab: View {
                 LabeledContent("Stored on this Mac") {
                     Text(verbatim: ByteCountFormatter.string(fromByteCount: history.cacheSize, countStyle: .file))
                 }
-                Text(verbatim: "Past days are downloaded once from archive.sensor.community and kept for 400 days. AirMonitor also records its own readings, including your local device.")
+                Text(verbatim: "Past days are downloaded once from archive.sensor.community and kept for 200 days. AirMonitor also records its own readings, including your local device.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Button("Clear History…") { history.showClearConfirm = true }

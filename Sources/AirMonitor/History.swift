@@ -9,18 +9,18 @@ import SwiftUI
 // MARK: - Ranges
 
 enum HistoryRange: Int, CaseIterable, Identifiable {
-    case week = 7, month = 30, halfYear = 180, year = 360
+    case day = 1, week = 7, month = 30, halfYear = 180
 
     var id: Int { rawValue }
     var days: Int { rawValue }
-    var title: String { "\(rawValue) days" }
+    var title: String { self == .day ? "24 h" : "\(rawValue) days" }
 
     /// Hours per chart point.
     var binHours: Int {
         switch self {
-        case .week: return 1
+        case .day, .week: return 1
         case .month: return 3
-        case .halfYear, .year: return 24
+        case .halfYear: return 24
         }
     }
 }
@@ -328,7 +328,7 @@ final class HistoryStore: ObservableObject {
     var sourcesProvider: @MainActor () -> [HistorySource] = { [] }
 
     static let metrics: [Metric] = [.pm25, .pm10, .temperature, .humidity]
-    static let keepDays = 400
+    static let keepDays = 200   // longest range is 180 days
     static let parallelDownloads = 4
 
     let directory: URL
@@ -345,7 +345,7 @@ final class HistoryStore: ObservableObject {
 
     init() {
         let d = UserDefaults.standard
-        range = HistoryRange(rawValue: d.integer(forKey: "historyRange")) ?? .week
+        range = HistoryRange(rawValue: d.integer(forKey: "historyRange")) ?? .day
         metric = Metric(rawValue: d.string(forKey: "historyMetric") ?? "") ?? .pm25
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory())

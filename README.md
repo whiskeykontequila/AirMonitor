@@ -11,7 +11,7 @@ straight from the device on your local network.
 - Right-click the icon: Refresh Now / Settings… / Quit
 - **Settings window with a map**: zoom and pan to any area, click a marker to see that device's sensors and
   add them with one click — or type sensor IDs in directly
-- **History** right in the popover: 7 / 30 / 180 / 360 days of PM2.5, PM10, temperature or humidity
+- **History** right in the popover: last 24 hours / 7 / 30 / 180 days of PM2.5, PM10, temperature or humidity
 - Optional: launch at login
 
 ## Install
@@ -88,18 +88,18 @@ and that sending to Sensor.Community is turned on.
 
 ## History
 
-The popover shows a history chart below the current values. Pick the period (7, 30, 180 or 360 days) and the
+The popover shows a history chart below the current values. Pick the period (24 hours, 7, 30 or 180 days) and the
 value (PM2.5, PM10, temperature, humidity). Hover over the chart to read a single hour/day.
 
 - **Past days** come from the public archive at archive.sensor.community (one CSV per sensor per day). Each day is
   downloaded **once** (newest first, 4 at a time) and cached as hourly averages/min/max in
-  `~/Library/Application Support/AirMonitor/History/` — about 1 MB per sensor per year, kept for 400 days.
-  The first time you open 360 days it takes about a minute; after that it's instant and only yesterday's file is
+  `~/Library/Application Support/AirMonitor/History/` — well under 1 MB per sensor, kept for 200 days.
+  The first time you open 180 days it takes about half a minute; after that it's instant and only yesterday's file is
   fetched once a day. The archive publishes a day only after it has ended.
 - **Today, and your local device:** AirMonitor also records its own readings on every refresh. That covers today
   and the local device (e.g. a BME280 that isn't registered on sensor.community) — that history starts the day you
   install this version.
-- 7 and 30 days show hourly / 3-hourly points; 180 and 360 days show daily averages with a min–max bar.
+- 24 hours and 7 days show hourly points, 30 days 3-hourly points, 180 days daily averages with a min–max bar.
   Background colors are the air quality levels; the summary counts days above the WHO 24-hour guideline
   (PM2.5 15 µg/m³, PM10 45 µg/m³).
 - *Settings → General → History* shows the cache size and has **Clear History…**.

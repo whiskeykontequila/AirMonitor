@@ -86,9 +86,10 @@ struct HistorySection: View {
 
     private var xFormat: Date.FormatStyle {
         switch history.range {
+        case .day: return .dateTime.hour()
         case .week: return .dateTime.weekday(.abbreviated)
         case .month: return .dateTime.day().month(.abbreviated)
-        case .halfYear, .year: return .dateTime.month(.abbreviated)
+        case .halfYear: return .dateTime.month(.abbreviated)
         }
     }
 
@@ -246,7 +247,12 @@ struct HistorySection: View {
         var parts = ["Avg \(Fmt.number(s.avg, decimals: decimals))",
                      "Min \(Fmt.number(s.min, decimals: decimals))",
                      "Max \(Fmt.number(s.max, decimals: decimals)) \(unit)"]
-        if let over = s.daysOverLimit, let limit = s.limit {
+        if history.range == .day {
+            if let limit = s.limit {
+                let verdict = s.avg > limit ? "above" : "within"
+                parts.append("24-h average \(verdict) WHO limit (\(Fmt.number(limit, decimals: 0)))")
+            }
+        } else if let over = s.daysOverLimit, let limit = s.limit {
             parts.append("\(over) of \(s.daysWithData) days above WHO limit (\(Fmt.number(limit, decimals: 0)))")
         } else if s.daysWithData < history.range.days {
             parts.append("\(s.daysWithData) of \(history.range.days) days with data")
